@@ -1,0 +1,23 @@
+html {
+  overflow-y: auto;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.page {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.page-narrow {
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 48px 16px 64px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
