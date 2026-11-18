@@ -3,6 +3,8 @@
 interface ImportMetaEnv {
   readonly VITE_API_BASE_URL: string
   readonly VITE_DEMO_SLUG?: string
+  readonly VITE_BACKOFFICE_URL?: string
+  readonly VITE_CONTACT_EMAIL?: string
 }
 
 interface ImportMeta {

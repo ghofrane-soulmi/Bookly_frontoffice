@@ -3,7 +3,8 @@ import { useAuthStore } from './stores/auth'
 
 export const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior: () => ({ top: 0 }),
+  // Landing-page section links (/#pricing etc.) scroll below the fixed app bar.
+  scrollBehavior: to => (to.hash ? { el: to.hash, top: 72, behavior: 'smooth' } : { top: 0 }),
   routes: [
     { path: '/', name: 'home', component: () => import('./pages/HomePage.vue') },
     { path: '/b/:slug', name: 'business', component: () => import('./pages/BusinessPage.vue'), props: true },

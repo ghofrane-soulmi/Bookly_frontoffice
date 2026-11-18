@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
+import LandingFooter from './landing/LandingFooter.vue'
+import { backofficeUrl, navSections } from './landing/content'
 import { useAuthStore } from './stores/auth'
 
 const auth = useAuthStore()
 const router = useRouter()
 const theme = useTheme()
+const drawer = ref(false)
 
 function toggleTheme() {
   theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
@@ -19,11 +23,38 @@ async function logout() {
 
 <template>
   <VApp>
+    <VNavigationDrawer
+      v-model="drawer"
+      temporary
+      location="left"
+    >
+      <VList nav>
+        <VListItem
+          v-for="s in navSections"
+          :key="s.id"
+          :to="{ path: '/', hash: `#${s.id}` }"
+          :title="s.label"
+          @click="drawer = false"
+        />
+        <VDivider class="my-2" />
+        <VListItem
+          :href="`${backofficeUrl}/login`"
+          prepend-icon="mdi-briefcase-outline"
+          title="Business login"
+        />
+      </VList>
+    </VNavigationDrawer>
+
     <VAppBar
       flat
       border="b"
       density="comfortable"
     >
+      <VAppBarNavIcon
+        class="d-md-none ms-1"
+        aria-label="Open menu"
+        @click="drawer = !drawer"
+      />
       <RouterLink
         to="/"
         class="d-flex align-center text-decoration-none ms-4"
@@ -40,6 +71,19 @@ async function logout() {
         <span class="text-h6 font-weight-bold">Bookly</span>
       </RouterLink>
 
+      <nav class="d-none d-md-flex ms-6">
+        <VBtn
+          v-for="s in navSections"
+          :key="s.id"
+          :to="{ path: '/', hash: `#${s.id}` }"
+          variant="text"
+          size="small"
+          class="text-medium-emphasis"
+        >
+          {{ s.label }}
+        </VBtn>
+      </nav>
+
       <VSpacer />
 
       <VBtn
@@ -48,6 +92,16 @@ async function logout() {
         aria-label="Toggle dark mode"
         @click="toggleTheme"
       />
+
+      <VBtn
+        :href="`${backofficeUrl}/login`"
+        variant="outlined"
+        color="primary"
+        prepend-icon="mdi-briefcase-outline"
+        class="d-none d-lg-flex me-2"
+      >
+        For businesses
+      </VBtn>
 
       <template v-if="auth.isLoggedIn">
         <VBtn
@@ -120,11 +174,6 @@ async function logout() {
       <RouterView />
     </VMain>
 
-    <VFooter
-      class="justify-center text-medium-emphasis text-body-2"
-      color="transparent"
-    >
-      Bookly · online booking for small businesses
-    </VFooter>
+    <LandingFooter />
   </VApp>
 </template>

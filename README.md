@@ -13,6 +13,7 @@ book with any business, and manage all their appointments in one place.
 
 ## Features
 
+- Marketing landing page: features, product tour, pricing, FAQ and calls to action for businesses and clients
 - Public business page: services by category, prices in the business's currency, opening hours
 - Real-time availability: free slots computed server-side from opening hours and each staff member's bookings
 - Book with a specific staff member or "first available"; double-booking is prevented server-side (HTTP 409)

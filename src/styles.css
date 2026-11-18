@@ -21,3 +21,28 @@ body {
 .text-balance {
   text-wrap: balance;
 }
+
+/* Landing page */
+.landing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.landing-container--narrow {
+  max-width: 820px;
+}
+
+.landing-section {
+  padding: 88px 0;
+}
+
+.landing-section--tinted {
+  background: rgba(var(--v-theme-primary), 0.04);
+}
+
+@media (max-width: 599px) {
+  .landing-section {
+    padding: 64px 0;
+  }
+}
