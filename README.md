@@ -7,6 +7,10 @@ book with any business, and manage all their appointments in one place.
 **Stack:** Vue 3 · TypeScript · Vite · Vuetify 3 · Pinia · Axios
 **Related:** [API (Laravel)](https://github.com/ghofrane-soulmi/Bookly_backend) · [Back office (Vue)](https://github.com/ghofrane-soulmi/Bookly_frontend)
 
+> **Live demo:** _add your Vercel URL here after deploying_. Open `/b/demo-salon`; customer login `customer@demo.bookly.test` / `123456789`.
+
+![Business page](docs/screenshots/business-page.png)
+
 ## Features
 
 - Public business page: services by category, prices in the business's currency, opening hours
@@ -16,6 +20,10 @@ book with any business, and manage all their appointments in one place.
 - "My bookings": upcoming and past appointments across every business, cancel online up to a cut-off
 - Times always shown in the business's timezone; light and dark theme; mobile-friendly
 
+| Booking | My bookings | Mobile |
+|---|---|---|
+| ![Booking dialog](docs/screenshots/booking.png) | ![My bookings](docs/screenshots/my-bookings.png) | ![Mobile](docs/screenshots/mobile.png) |
+
 ## Run locally
 
 ```bash
@@ -24,7 +32,7 @@ npm install
 npm run dev            # http://localhost:5174
 ```
 
-Try it with the seeded demo: open `/b/demo-salon` and log in as `customer@demo.bookly.test` / `password`.
+Try it with the seeded demo: open `/b/demo-salon` and log in as `customer@demo.bookly.test` / `123456789`.
 
 ## Deploy
 
