@@ -26,8 +26,10 @@ export const vuetify = createVuetify({
   defaults: {
     VBtn: { rounded: 'lg', style: 'text-transform: none; letter-spacing: 0;' },
     VCard: { rounded: 'xl' },
-    VTextField: { variant: 'outlined', density: 'comfortable' },
-    VTextarea: { variant: 'outlined', density: 'comfortable' },
-    VSelect: { variant: 'outlined', density: 'comfortable' },
+    VChip: { style: 'text-transform: none; letter-spacing: 0;' },
+    VListItemTitle: { style: 'text-transform: none; letter-spacing: 0;' },
+    VTextField: { variant: 'outlined', density: 'comfortable', rounded: 'lg' },
+    VTextarea: { variant: 'outlined', density: 'comfortable', rounded: 'lg' },
+    VSelect: { variant: 'outlined', density: 'comfortable', rounded: 'lg' },
   },
 })

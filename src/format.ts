@@ -22,13 +22,20 @@ export function formatDuration(minutes: number): string {
   return m ? `${h} h ${m} min` : `${h} h`
 }
 
+/**
+ * The interface is in English, so dates are too — following the browser's
+ * language gave sentences like "mercredi 18 novembre at 15:30". en-GB keeps
+ * the 24-hour clock used in Tunisia.
+ */
+export const UI_LOCALE = 'en-GB'
+
 /** Times are shown in the business's timezone, not the visitor's. */
 export function formatTime(iso: string, timeZone: string): string {
-  return new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', timeZone }).format(new Date(iso))
+  return new Intl.DateTimeFormat(UI_LOCALE, { hour: '2-digit', minute: '2-digit', timeZone }).format(new Date(iso))
 }
 
 export function formatDate(iso: string, timeZone: string): string {
-  return new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone })
+  return new Intl.DateTimeFormat(UI_LOCALE, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone })
     .format(new Date(iso))
 }
 

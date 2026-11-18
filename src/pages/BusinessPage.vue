@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { api } from '@/api'
 import BookingDialog from '@/components/BookingDialog.vue'
 import { formatDuration, formatMoney } from '@/format'
+import { backofficeUrl, demoSlug } from '@/landing/content'
 import type { BusinessPage, PublicService, Weekday } from '@/types'
 
 const props = defineProps<{ slug: string }>()
@@ -56,13 +57,22 @@ const hours = computed(() => {
   if (!configured)
     return null
 
+  // "Today" in the business's own timezone, not the visitor's.
+  const today = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: page.value!.business.timezone })
+    .format(new Date()).toLowerCase()
+
   return WEEKDAYS.map(day => ({
     day: day.charAt(0).toUpperCase() + day.slice(1),
+    isToday: day === today,
     text: configured[day]?.open && configured[day]?.close
       ? `${configured[day]!.open} – ${configured[day]!.close}`
       : 'Closed',
   }))
 })
+
+const isDemo = computed(() => props.slug === demoSlug)
+const initials = computed(() => (page.value?.business.name ?? '')
+  .split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]!.toUpperCase()).join(''))
 </script>
 
 <template>
@@ -82,48 +92,80 @@ const hours = computed(() => {
     />
 
     <template v-else-if="page">
-      <VCard
-        class="mb-6 pa-2"
-        variant="flat"
-        border
+      <VAlert
+        v-if="isDemo"
+        color="primary"
+        variant="tonal"
+        icon="mdi-information-outline"
+        class="mb-6 demo-banner"
       >
-        <VCardItem>
-          <template #prepend>
-            <VAvatar
-              color="primary"
-              size="56"
-              rounded="lg"
-              class="text-h5 font-weight-bold"
-            >
-              {{ page.business.name.charAt(0).toUpperCase() }}
-            </VAvatar>
-          </template>
-          <VCardTitle class="text-h5 font-weight-bold text-wrap">
+        <div class="d-flex flex-wrap align-center ga-3">
+          <div class="flex-grow-1">
+            <strong>This is a demo booking page.</strong>
+            It's what your clients see: pick a service below to try booking. Nothing real is charged.
+          </div>
+          <VBtn
+            :href="`${backofficeUrl}/login?demo=1`"
+            variant="flat"
+            color="primary"
+            size="small"
+            append-icon="mdi-arrow-right"
+          >
+            See the owner's dashboard
+          </VBtn>
+        </div>
+      </VAlert>
+
+      <div class="business-header mb-8">
+        <VAvatar
+          color="primary"
+          size="72"
+          rounded="xl"
+          class="text-h5 font-weight-bold business-avatar"
+        >
+          {{ initials }}
+        </VAvatar>
+        <div class="min-w-0">
+          <h1 class="business-name">
             {{ page.business.name }}
-          </VCardTitle>
-          <VCardSubtitle class="d-flex flex-wrap ga-4 mt-1 opacity-100">
-            <span v-if="page.business.phone"><VIcon
-              icon="mdi-phone-outline"
-              size="16"
-            /> {{ page.business.phone }}</span>
-            <span v-if="page.business.email"><VIcon
-              icon="mdi-email-outline"
-              size="16"
-            /> {{ page.business.email }}</span>
-            <span><VIcon
-              icon="mdi-earth"
-              size="16"
-            /> Times shown in {{ page.business.timezone }}</span>
-          </VCardSubtitle>
-        </VCardItem>
-      </VCard>
+          </h1>
+          <div class="d-flex flex-wrap ga-2 mt-3">
+            <a
+              v-if="page.business.phone"
+              :href="`tel:${page.business.phone.replace(/\s+/g, '')}`"
+              class="info-pill"
+            >
+              <VIcon
+                icon="mdi-phone-outline"
+                size="16"
+              /> {{ page.business.phone }}
+            </a>
+            <a
+              v-if="page.business.email"
+              :href="`mailto:${page.business.email}`"
+              class="info-pill"
+            >
+              <VIcon
+                icon="mdi-email-outline"
+                size="16"
+              /> {{ page.business.email }}
+            </a>
+            <span class="info-pill">
+              <VIcon
+                icon="mdi-earth"
+                size="16"
+              /> Times in {{ page.business.timezone }}
+            </span>
+          </div>
+        </div>
+      </div>
 
       <VRow>
         <VCol
           cols="12"
           md="8"
         >
-          <h2 class="text-h6 font-weight-bold mb-3">
+          <h2 class="text-h6 font-weight-bold mb-4">
             Choose a service
           </h2>
 
@@ -139,55 +181,47 @@ const hours = computed(() => {
             :key="category"
             class="mb-6"
           >
-            <div class="text-overline text-medium-emphasis mb-1">
+            <div class="category-label mb-2">
               {{ category }}
             </div>
-            <VCard
-              variant="flat"
-              border
-            >
-              <template
-                v-for="(service, i) in services"
+            <div class="d-flex flex-column ga-3">
+              <button
+                v-for="service in services"
                 :key="service.id"
+                type="button"
+                class="service-row"
+                @click="selected = service"
               >
-                <VDivider v-if="i" />
-                <VListItem
-                  class="py-4"
-                  lines="three"
-                >
-                  <template #prepend>
-                    <div
-                      class="me-3 rounded-pill"
-                      :style="{ width: '4px', alignSelf: 'stretch', background: service.color || 'rgb(var(--v-theme-primary))' }"
-                    />
-                  </template>
-                  <VListItemTitle class="font-weight-medium">
-                    {{ service.name }}
-                  </VListItemTitle>
-                  <VListItemSubtitle v-if="service.description">
-                    {{ service.description }}
-                  </VListItemSubtitle>
-                  <div class="text-body-2 text-medium-emphasis mt-1">
-                    <VIcon
+                <span
+                  class="service-dot"
+                  :style="{ background: service.color || 'rgb(var(--v-theme-primary))' }"
+                />
+                <span class="service-body">
+                  <span class="service-name">{{ service.name }}</span>
+                  <span
+                    v-if="service.description"
+                    class="service-desc"
+                  >{{ service.description }}</span>
+                  <span class="service-meta">
+                    <span><VIcon
                       icon="mdi-clock-outline"
-                      size="14"
-                    /> {{ formatDuration(service.duration_minutes) }}
-                    <template v-if="service.price">
-                      · <strong class="text-high-emphasis">{{ formatMoney(service.price, page.business.locale) }}</strong>
-                    </template>
-                  </div>
-                  <template #append>
-                    <VBtn
-                      color="primary"
-                      variant="flat"
-                      @click="selected = service"
-                    >
-                      Book
-                    </VBtn>
-                  </template>
-                </VListItem>
-              </template>
-            </VCard>
+                      size="15"
+                    /> {{ formatDuration(service.duration_minutes) }}</span>
+                    <strong
+                      v-if="service.price"
+                      class="service-price"
+                    >{{ formatMoney(service.price, page.business.locale) }}</strong>
+                  </span>
+                </span>
+                <span class="service-cta">
+                  Book
+                  <VIcon
+                    icon="mdi-arrow-right"
+                    size="18"
+                  />
+                </span>
+              </button>
+            </div>
           </div>
         </VCol>
 
@@ -198,16 +232,29 @@ const hours = computed(() => {
           <VCard
             variant="flat"
             border
-            title="Opening hours"
-            prepend-icon="mdi-clock-outline"
+            class="hours-card"
           >
+            <VCardItem class="pb-1">
+              <VCardTitle class="d-flex align-center ga-2 text-subtitle-1 font-weight-bold">
+                <VIcon
+                  icon="mdi-clock-outline"
+                  size="20"
+                  color="primary"
+                />
+                Opening hours
+              </VCardTitle>
+            </VCardItem>
             <VCardText v-if="hours">
               <div
                 v-for="h in hours"
                 :key="h.day"
-                class="d-flex justify-space-between py-1 text-body-2"
+                class="hours-row"
+                :class="{ 'hours-row--today': h.isToday }"
               >
-                <span>{{ h.day }}</span>
+                <span>{{ h.day }}<span
+                  v-if="h.isToday"
+                  class="today-tag"
+                >Today</span></span>
                 <span :class="h.text === 'Closed' ? 'text-medium-emphasis' : 'font-weight-medium'">{{ h.text }}</span>
               </div>
             </VCardText>
@@ -227,3 +274,184 @@ const hours = computed(() => {
     </template>
   </div>
 </template>
+
+<style scoped>
+.demo-banner :deep(.v-alert__content) {
+  width: 100%;
+}
+
+.business-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 24px;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  background:
+    radial-gradient(70% 120% at 100% 0%, rgba(var(--v-theme-primary), 0.12), transparent 60%),
+    rgb(var(--v-theme-surface));
+}
+
+.business-avatar {
+  box-shadow: 0 10px 24px -10px rgba(var(--v-theme-primary), 0.7);
+  flex-shrink: 0;
+}
+
+.business-name {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.info-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: rgba(var(--v-theme-on-surface), 0.75);
+  background: rgba(var(--v-theme-on-surface), 0.05);
+  text-decoration: none;
+}
+
+a.info-pill:hover {
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.08);
+}
+
+.category-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(var(--v-theme-on-surface), 0.55);
+}
+
+.service-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 18px 20px;
+  text-align: start;
+  border-radius: 16px;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  background: rgb(var(--v-theme-surface));
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.service-row:hover,
+.service-row:focus-visible {
+  border-color: rgba(var(--v-theme-primary), 0.6);
+  box-shadow: 0 12px 28px -18px rgba(var(--v-theme-primary), 0.6);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.service-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 7px;
+}
+
+.service-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.service-name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.service-desc {
+  font-size: 0.875rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.service-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 0.875rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.service-price {
+  color: rgb(var(--v-theme-on-surface));
+}
+
+.service-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgb(var(--v-theme-primary));
+  background: rgba(var(--v-theme-primary), 0.1);
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.service-row:hover .service-cta,
+.service-row:focus-visible .service-cta {
+  color: rgb(var(--v-theme-on-primary));
+  background: rgb(var(--v-theme-primary));
+}
+
+@media (min-width: 960px) {
+  .hours-card {
+    position: sticky;
+    top: 92px;
+  }
+}
+
+.hours-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 7px 10px;
+  margin: 0 -10px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+}
+
+.hours-row--today {
+  background: rgba(var(--v-theme-primary), 0.08);
+  font-weight: 600;
+}
+
+.today-tag {
+  margin-inline-start: 8px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: rgb(var(--v-theme-on-primary));
+  background: rgb(var(--v-theme-primary));
+}
+
+@media (max-width: 599px) {
+  .business-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+
+  .service-row {
+    padding: 16px;
+  }
+}
+</style>

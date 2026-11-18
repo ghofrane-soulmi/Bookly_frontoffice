@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { api, apiError } from '@/api'
-import { formatDate, formatMoney, formatTime } from '@/format'
+import { UI_LOCALE, formatDate, formatMoney, formatTime } from '@/format'
 import type { AppointmentStatus, CustomerAppointment } from '@/types'
 
 const tab = ref<'upcoming' | 'past'>('upcoming')
@@ -126,10 +126,10 @@ async function cancel() {
               style="min-width: 64px; background: rgba(var(--v-theme-primary), 0.1);"
             >
               <div class="text-caption text-primary font-weight-medium">
-                {{ new Intl.DateTimeFormat(undefined, { month: 'short', timeZone: a.business.timezone }).format(new Date(a.starts_at)) }}
+                {{ new Intl.DateTimeFormat(UI_LOCALE, { month: 'short', timeZone: a.business.timezone }).format(new Date(a.starts_at)) }}
               </div>
               <div class="text-h5 font-weight-bold text-primary">
-                {{ new Intl.DateTimeFormat(undefined, { day: 'numeric', timeZone: a.business.timezone }).format(new Date(a.starts_at)) }}
+                {{ new Intl.DateTimeFormat(UI_LOCALE, { day: 'numeric', timeZone: a.business.timezone }).format(new Date(a.starts_at)) }}
               </div>
             </div>
           </template>

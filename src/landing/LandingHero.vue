@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { backofficeUrl, demoSlug, industries } from './content'
+import { ref } from 'vue'
+import { backofficeUrl, industries } from './content'
+import DemoDialog from './DemoDialog.vue'
+
+const demoOpen = ref(false)
 </script>
 
 <template>
@@ -38,18 +42,21 @@ import { backofficeUrl, demoSlug, industries } from './content'
               variant="flat"
               size="x-large"
               append-icon="mdi-arrow-right"
+              class="cta-primary"
             >
               Start for free
             </VBtn>
             <VBtn
-              :to="{ name: 'business', params: { slug: demoSlug } }"
-              variant="outlined"
+              variant="tonal"
+              color="primary"
               size="x-large"
               prepend-icon="mdi-play-circle-outline"
+              @click="demoOpen = true"
             >
               Try a live demo
             </VBtn>
           </div>
+          <DemoDialog v-model="demoOpen" />
           <p class="text-body-2 text-medium-emphasis mt-4">
             Free plan forever &middot; No credit card &middot; Set up in 5 minutes
           </p>
@@ -88,15 +95,18 @@ import { backofficeUrl, demoSlug, industries } from './content'
           Made for appointment-based businesses
         </p>
         <div class="d-flex flex-wrap justify-center ga-2">
-          <VChip
+          <span
             v-for="i in industries"
             :key="i.label"
-            :prepend-icon="i.icon"
-            variant="outlined"
-            size="large"
+            class="industry"
           >
+            <VIcon
+              :icon="i.icon"
+              size="18"
+              color="primary"
+            />
             {{ i.label }}
-          </VChip>
+          </span>
         </div>
       </div>
     </div>
@@ -175,5 +185,22 @@ import { backofficeUrl, demoSlug, industries } from './content'
 
 .industries {
   margin-top: 40px;
+}
+
+.industry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  background: rgb(var(--v-theme-surface));
+  border: 1px solid rgba(var(--v-border-color), 0.1);
+  box-shadow: 0 1px 2px rgba(20, 20, 50, 0.04);
+}
+
+.cta-primary {
+  box-shadow: 0 10px 24px -10px rgba(var(--v-theme-primary), 0.7);
 }
 </style>

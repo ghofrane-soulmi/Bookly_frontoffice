@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { api, apiError } from '@/api'
-import { formatDate, formatDuration, formatMoney, formatTime, isoDateInZone } from '@/format'
+import { UI_LOCALE, formatDate, formatDuration, formatMoney, formatTime, isoDateInZone } from '@/format'
 import { useAuthStore } from '@/stores/auth'
 import type { BusinessPage, CustomerAppointment, PublicService, Slot, Weekday } from '@/types'
 
@@ -43,9 +43,9 @@ const days = computed(() => {
 
     return {
       iso,
-      weekday: new Intl.DateTimeFormat(undefined, { weekday: 'short', timeZone: 'UTC' }).format(noon),
+      weekday: new Intl.DateTimeFormat(UI_LOCALE, { weekday: 'short', timeZone: 'UTC' }).format(noon),
       day: noon.getUTCDate(),
-      month: new Intl.DateTimeFormat(undefined, { month: 'short', timeZone: 'UTC' }).format(noon),
+      month: new Intl.DateTimeFormat(UI_LOCALE, { month: 'short', timeZone: 'UTC' }).format(noon),
       closed: !!hours && !(h?.open && h?.close),
     }
   })
@@ -180,9 +180,10 @@ async function confirm() {
           >
             <VCard
               :color="isSelected ? 'primary' : undefined"
-              :variant="isSelected ? 'flat' : 'outlined'"
+              variant="flat"
               :disabled="d.closed"
-              class="ma-1 text-center py-2"
+              class="ma-1 text-center py-2 day-card"
+              :class="{ 'day-card--selected': isSelected }"
               width="64"
               rounded="lg"
               @click="toggle"
@@ -229,15 +230,16 @@ async function confirm() {
           v-else
           v-model="slot"
           column
-          selected-class="bg-primary"
+          selected-class="time-chip--selected"
         >
           <VChip
             v-for="s in slots"
             :key="s.starts_at"
             :value="s"
-            variant="outlined"
+            variant="flat"
             size="large"
-            class="justify-center"
+            rounded="lg"
+            class="justify-center time-chip"
             style="min-width: 84px;"
           >
             {{ formatTime(s.starts_at, tz) }}
@@ -379,3 +381,36 @@ async function confirm() {
     </VCard>
   </VDialog>
 </template>
+
+<style scoped>
+.day-card {
+  border: 1px solid rgba(var(--v-border-color), 0.12);
+  background: rgba(var(--v-theme-on-surface), 0.02);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.day-card:not(.day-card--selected):not(.v-card--disabled):hover {
+  border-color: rgba(var(--v-theme-primary), 0.6);
+  background: rgba(var(--v-theme-primary), 0.06);
+}
+
+.day-card--selected {
+  border-color: transparent;
+  box-shadow: 0 8px 20px -10px rgba(var(--v-theme-primary), 0.8);
+}
+
+.time-chip {
+  font-weight: 600;
+  background: rgba(var(--v-theme-primary), 0.08) !important;
+  color: rgb(var(--v-theme-primary)) !important;
+}
+
+.time-chip:hover {
+  background: rgba(var(--v-theme-primary), 0.16) !important;
+}
+
+.time-chip--selected {
+  background: rgb(var(--v-theme-primary)) !important;
+  color: rgb(var(--v-theme-on-primary)) !important;
+}
+</style>

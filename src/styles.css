@@ -6,6 +6,20 @@ body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
+/* Vuetify hard-codes Roboto on the app and its typography classes; use Inter
+   everywhere instead, without touching icon fonts. */
+.v-application,
+.v-application [class*='text-']:not(.v-icon):not(.mdi),
+.v-btn,
+.v-field,
+.v-list-item-title {
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.v-btn {
+  font-weight: 600;
+}
+
 .page {
   max-width: 1040px;
   margin: 0 auto;
