@@ -7,7 +7,7 @@ book with any business, and manage all their appointments in one place.
 **Stack:** Vue 3 · TypeScript · Vite · Vuetify 3 · Pinia · Axios
 **Related:** [API (Laravel)](https://github.com/ghofrane-soulmi/Bookly_backend) · [Back office (Vue)](https://github.com/ghofrane-soulmi/Bookly_frontend)
 
-> **Live demo:** _add your Vercel URL here after deploying_. Open `/b/demo-salon`; customer login `customer@demo.bookly.test` / `123456789`.
+> **Live demo: <https://bookly-tn.vercel.app>**. Try the [demo salon's booking page](https://bookly-tn.vercel.app/b/demo-salon); customer login `customer@demo.bookly.test` / `123456789`. The demo resets every night.
 
 ![Business page](docs/screenshots/business-page.png)
 
